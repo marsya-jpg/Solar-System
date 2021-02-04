@@ -1,0 +1,241 @@
+"""
+VELOCITY VERLET: velocity Verlet time integration of
+a body moving in orbit
+
+Produces plots of the position of the particle
+and its energy, both as function of time. Also
+saves both to file.
+
+The potential is V(x) = a*x^4 - b*x^2, where
+a and b are hard-coded in the main() method
+and passed to the functions that
+calculate force and potential energy.
+"""
+
+import sys
+import math
+import numpy as np
+import matplotlib.pyplot as pyplot
+from Particle3Dsos import Particle 
+
+#i dont think we need this
+def g_force(G, p1, p2):
+    """
+    Method to return the force between two body pair.
+    F(x) = -GMm/|r|**2 r_hat
+
+    :param particle: Particle3D instance
+    :param p1:body p1
+    :param p2: body p2
+    :return: force_vec; a numpy array in 3D 
+    """
+    r_vec = p1.vel - p2.vel
+    r_mag = np.linalg.norm(r_vec)
+    r_hat = r_vec/r_mag
+    force_mag = G*p1.mass*p2.mass/(r_mag)**2
+    force_vec = -force_mag*r_hat
+    
+    return force_vec
+
+
+def pot_energy(p1, p2):
+    """
+    Method to return potential energy 
+    of two body pair.
+    V(x) = -GMm/|r|
+    
+    :param particle: Particle3D instance
+    :param p1:body p1
+    :param p2: body p2
+    :return: potential; float
+    """
+    r_vec = p1.pos - p2.pos
+    r_mag = np.linalg.norm(r_vec)
+    potential = -G*p1.mass*p2.mass/(r_mag)
+    
+    return "potential ", potential
+
+def sys_pot_energy(p_list):
+    """
+    Returns potential energy of system in 
+
+    Parameters
+    ----------
+    p_list : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+def get_separation(p_list):
+    """
+    Method that calculates all necessary separations to return as an array
+    
+    :param p_list : list
+    :return: N x N array
+    """
+    N = len(p_list)
+    #Opens [N,N] array to hold pair separation values in scalar
+    mod_array = np.zeros([N,N])
+    #Opens [N,N,3] array to hold pair separation as vector (x,y,z)
+    separations = np.zeros([N,N,3])
+    for i in range(N):
+        for j in range(N):
+            separations[i,j] = p_list[i].pos - p_list[j].pos
+            mod_array[i,j] = np.linalg.norm(seps[i,j])
+            
+    return mod_array, separations
+
+
+def update_vel(p_list):
+    """
+    Computes the updated velocity of the system from 
+    """
+    sys_vel = np.array([])
+    
+    
+def update_pos(p_list):
+    """
+    Computes the position of the system 
+    Returns 3-N by N arrays
+    """
+    sys_pos = np.zeroes([N,N,3])
+    
+    for particle in p_list:
+        sys_pos += particle.leap_pos2nd()
+        
+    return sys_position
+    
+
+# Begin main code
+def main():
+    # Read name of output file from command line
+    if len(sys.argv)!=2:
+        print("Wrong number of arguments.")
+        print("Usage: " + sys.argv[0] + " <output file>")
+        sys.exit()
+    else:
+        outfile_name = sys.argv[1]
+
+    # Open output file
+    outfile = open(outfile_name, "w")
+    #Opens o2_vibration in symplectic and verlet
+    
+    #Reads in simulation parameters 
+    with open("sim_parameter.txt","r") as my_input:
+        #Reads first line only
+        solar_data = my_input.readline().split(" ")
+        G = float(solar_data[0])
+        dt = float(solar_data[1])
+        numstep = float(solar_data[2])
+
+    #Set up celestial bodies from input file
+    f = open("p_setup.txt")
+    p_list = []
+    
+    count = len(open(f).readlines( ))
+    for i in range(count):
+        val = f.readline()
+        part = Particle.new_particle(val)
+        p_list.append(part)      
+   
+    f.close()
+    
+    print(get_separation(p_list))
+    
+    def get_force(p_list):
+        #Gets total force on every body, returns a float array
+        #you would want to sum up force[i] with combinations of sep[i,j]
+        sys_force = []
+        N = len(p_list)
+        sep = get_separation(p_list)
+        force = np.zeros([N,N])
+        column = []
+        #Forms (N,N) array of bodies
+        for i in range(N):
+            for j in range(N):
+                #Gets the force numerator
+                if i!=j:
+                    force[i,j] = G*p_list[i].mass*p_list[j].mass/(sep[i,j])**2
+                else:
+                    continue
+        column = force.sum(axis=1)
+        sys_force.append(column)
+                
+        return sys_force 
+           
+    
+    # Write out initial conditions
+    
+    energy = p1.KE() + pot_energy()
+    outfile.write("{0:f} {1:f} {2:12.8f}\n".format(time,p1.position,energy))
+                                                                                              
+    # Get initial force
+    force = force_dw(p1, a, b)
+
+    # Initialise data lists for plotting later
+    time_list = [time]
+    pos_list = [p1.position]
+    energy_list = [energy]
+
+    # Start the time integration loop
+    for i in range(numstep):
+        # Update particle position
+        p2.leap_pos2nd(dt, force)
+        p3.leap_pos2nd(dt, force)
+        
+        
+        # Update force
+        force_new = force_dw(p1, a, b)
+        # Update particle velocity by averaging
+        # current and new forces
+        p1.leap_vel(dt, 0.5*(force+force_new))
+        
+        # Re-define force value
+        force = force_new
+
+        # Increase time
+        time += dt
+        
+        # Output particle information
+        energy = p1.kinetic_energy() + pot_energy_dw(D,r, re, alpha)
+        outfile.write("{0:f} {1:f} {2:12.8f}\n".format(time,p1.position,energy))
+
+        # Append information to data lists
+        time_list.append(time)
+        pos_list.append(p1.position)
+        energy_list.append(energy)
+    
+    
+    #Code to generate XYZ file
+    with open("file.xyz", 'w') as xyz_file:
+    xyz_file.write("%d\n%s\n" % (len(p_list), Trajectory))
+    for atom in molecule.atoms:
+        xyz_file.write("{:4} {:11.6f} {:11.6f} {:11.6f}\n".format(
+            atom.atomic_symbol, atom.coordinates.x, atom.coordinates.y, atom.coordinate
+
+    # Post-simulation:
+    # Close output file
+    outfile.close()
+
+    # Plot particle trajectory to screen
+    pyplot.title('Velocity Verlet: position vs time')
+    pyplot.xlabel('Time')
+    pyplot.ylabel('Position')
+    pyplot.plot(time_list, pos_list)
+    pyplot.show()
+
+    # Plot particle energy to screen
+    pyplot.title('Velocity Verlet: total energy vs time')
+    pyplot.xlabel('Time')
+    pyplot.ylabel('Energy')
+    pyplot.plot(time_list, energy_list)
+    pyplot.show()
+
+
+# Execute main method, but only when directly invoked
+if __name__ == "__main__":
+    main()
