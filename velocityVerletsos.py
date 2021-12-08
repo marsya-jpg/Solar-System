@@ -140,12 +140,12 @@ def main():
         numstep = int(solar_data[2])        
         
     #Set up celestial bodies from input file
-    f = open("p_setup.txt")
+    f = open("new_setup.txt")
     p_list = []
     
     
    #Assigns new particle from input particle file
-    count = sum(1 for line in open('p_setup.txt'))
+    count = sum(1 for line in open('new_setup.txt'))
     print(count)
     for i in range(count):
         val = f.readline()
@@ -155,7 +155,7 @@ def main():
     f.close()
     
     N = len(p_list)
-       
+
     #COM  correction
     total_mass, com_vel = Particle.com_velocity(p_list)
     for i in range(N):
@@ -163,7 +163,7 @@ def main():
     
     #Setup initial condition
     time = 0
-    
+
     # Write out initial conditions
     energy = sys_pot_energy(p_list, G, dt, N) + Particle.sys_kinetic(p_list)
     force = get_force(p_list, G, N)
@@ -173,23 +173,18 @@ def main():
         
     # Initialise observables initial conditions and data list
     mod_array, seps = get_separation(p_list, N)
-    
-    planet_sep = np.zeros([numstep+1, N-2])
+    planet_sep = np.zeros([numstep, N-2])
+    #remove sun and moon
     aphelion = []
     perihelion = []
     
-    moon_sep = np.zeros([numstep+!])
+    moon_sep = np.zeros([numstep])
     apogee = []
     perigee = []
     
-    y_max = np.zeros([numstep+1, N-1])
-
     energy_list = [energy]
     ke_list = [KE]
-    force_list = [np.linalg.norm(force[9])]
-    y_max[0] = sys_mod[1:12]
-    planet_sep[0] = mod_array[1:-1,0]
-    moon_sep[0] = mod_array[-1,]
+    force_list = [np.linalg.norm(force[3])]
     
     #Start write XYZ file 
     #Makes a list of particle names
@@ -202,6 +197,7 @@ def main():
             outfile.write("%s %.18g %.18g %.18g\n"%(particle, x[0], x[1], x[2]))      
     
     xyz(p_list, 0)
+    
     
     # Start the time integration loop
 
@@ -220,12 +216,13 @@ def main():
         
         #Assign separations for apsis and periapsis
         mod_array, seps = get_separation(p_list, N)
-        planet_sep[num+1] = mod_array[1:-1,0]
-        moon_sep[num+1] = mod_array[-1,3]
-
+        planet_sep[num] = mod_array[1:-1,0]
+        moon_sep[num] = mod_array[3,2]
+        #index of moon: earth
+        
         # Re-define force value
         force = force_new
-        
+
         KE = Particle.sys_kinetic(p_list)
 
         # Output particle information
@@ -246,8 +243,7 @@ def main():
         energy_list.append(energy)
         ke_list.append(KE)
         
-        force_list.append(np.linalg.norm(force[4]))
-        
+        force_list.append(np.linalg.norm(force[3]))
     #print("ps", planet_sep.shape)   (366,10)
 
     # Post-simulation:
@@ -267,36 +263,34 @@ def main():
     
     #Calculation of orbital period
     #Finding peaks
-    period = []
-    
+    planet_period = []
+    print(planet_sep.shape)
     #Range of 0 to len(p_list)-1
-    for i in range(0,10):
-        
-        #peak_list = []
+    for i in range(0,2):
+    #index 0: index last planet+1    
         peaks = find_peaks(planet_sep[:,i], height=0)  #Peaks of position
-        print("peaks",peaks[1])
-        #height = peaks[1] #list of height of peaks
         peak_time = [time_list[i] for i in peaks[0]] 
-        print("time", peak_time)
-        
-        #prominences = peak_prominences(peaks,time)
-        
-        #print("prominences",prominences)
-        #print("prominences", prominences)
+        #print(peak_time)
         val = peak_time[1]-peak_time[0]
-        period.append(val)
+        
+        planet_period.append(val)
     
-    print("period",period)
+    print("period",planet_period)
+    
+    #peaks = find_peaks(moon_sep, height=0)  #Peaks of position
+    #peak_time = [time_list[i] for i in peaks[0]] 
+    #moon_period = peak_time[1]-peak_time[0]
+    
+    #print("moon period",moon_period)
     
     # Plot particle energy to screen
     #pyplot.title('Velocity Verlet: total energy vs time')
-    pyplot.title('Velocity Verlet: mercury vs time')
+    pyplot.title('Moon: Force vs time')
+    #pyplot.xlim([0,40])
     pyplot.xlabel('Time')
-    pyplot.ylabel('Mercury')
+    pyplot.ylabel('Force')
     pyplot.plot(time_list, force_list)
-    #pyplot.plot(time_list, pos_list_planet)
-    #pyplot.plot(time_list, planet_progress)
-    #pyplot.plot(time_list, ke_list)
+    
     pyplot.show()
 
 

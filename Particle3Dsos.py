@@ -1,4 +1,4 @@
-"""
+                    """
 PARTICLE3D: Class to describe N bodies in solar system 
 
  An instance describes a particle in Euclidean 3D space: 
