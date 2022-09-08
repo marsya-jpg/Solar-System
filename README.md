@@ -1,5 +1,5 @@
 # Solar-System
-Simulation of a solar system with user selectable simulation parameters, incorporating the velocity Verlet algorithm to write an XYZ compatible trajectory file for the simulation.
+Simulation of a solar system in Python, with user selectable simulation parameters, incorporating the velocity Verlet algorithm to write an XYZ compatible trajectory file for the simulation.
 
 Input textfiles:
 1. p_setup.txt - Initial conditions of solar bodies
